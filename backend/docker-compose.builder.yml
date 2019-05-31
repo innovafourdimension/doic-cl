@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+  web-api-gateway-tests:
+    image: node:11
+    volumes:
+      - ./web-api-gateway-tests:/usr/src/app
+    working_dir: /usr/src/app
+  inventario:
+    image: node:11
+    volumes: 
+      - ./services/inventario:/usr/src/app
+    working_dir: /usr/src/app  
+  install:
+      extends:
+        service: web-api-gateway-tests
+      command: npm i
+  build:
+    extends:
+      service: web-api-gateway-tests
+    command: npm run build
+  install:
+    extends:
+      service: inventario
+    command: npm i
+  build:
+    extends:
+      service: inventario
+    command: npm run build

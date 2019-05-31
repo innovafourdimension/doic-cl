@@ -1,0 +1,62 @@
+version: '3.5'
+
+services:
+
+  db:
+    container_name: psql
+    image: postgres:10
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: doitclick
+      POSTGRES_USER: doitclick
+      POSTGRES_PASS: secreto
+    volumes:
+      - postgres_database:/var/lib/postgresql/data:Z
+    networks:
+      - app_network
+
+  web-api-gateway-tests:
+    image: node:11
+    environment:
+      NODE_ENV: development
+      COMUNICATION_LAYER: amqp://localhost
+    volumes:
+      - ./web-api-gateway-tests:/usr/src/app
+      - ./web-api-gateway-tests/node_modules:/usr/src/app/node_modules
+    working_dir: /usr/src/app
+    command: npm run start:dev
+    ports:
+      - 4000:4000
+      - 9200:9200
+    networks: 
+      - app_network
+
+  inventario:
+    build: ./services/inventario
+    volumes:
+      - ./services/inventario:/usr/src/app
+      - ./services/inventario/node_modules:/usr/src/app/node_modules
+    command: npm run start:dev
+    ports:
+      - 4001:4001
+      - 9201:9201
+    depends_on:
+      - db
+    links:
+      - db
+    networks: 
+      - app_network
+    environment:
+      NODE_ENV: development
+      COMUNICATION_LAYER: amqp://localhost
+      DATABASE_HOST: db
+      
+networks: 
+  app_network:
+    driver: bridge
+    name: app_network
+
+volumes:
+  postgres_database:
+    external: true

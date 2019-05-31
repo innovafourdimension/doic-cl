@@ -1,0 +1,6 @@
+{
+    "nodeTdd.activateOnStartup":true,
+    "nodeTdd.verbose": true,
+    "nodeTdd.showCoverage": true,
+    "nodeTdd.coverageThreshold": 80
+}
